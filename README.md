@@ -4,31 +4,58 @@ This project simulates an API for Societatea de Transport Bucuresti (STB), provi
 
 ## Description
 
-The API I made for myself fetches real-time bus arrival information for line 25 at a specific location. It mimics the behavior of STB's API by retrieving user authentication data and then querying the STB server for the bus arrival times.
+The API I made for myself fetches real-time public transport arrival information . It mimics the behavior of STB's API by retrieving user authentication data and then querying the STB server for the bus arrival times.
 
 ## Usage
 
-### Edit the API info
+### Endpoints
 
-- To edit which station to get times from, edit the following lines:
-`stop_id = "x"` and `line_id = "y"` where `x` and `y` represent IDs that ou get from the official website
+#### 1. Get Current Time for a Specific Stop and Line
 
-#### How? 👆
+- **URL**: `/api/time/<time>/<stop_id>/<line_id>`
+- **Method**: `GET`
+- **URL Parameters**:
+  - `time` (string): Specifies the specific time to retrieve. If set to `'all'`, all times will be returned.
+  - `stop_id` (integer): The ID of the stop. - Explained Below
+  - `line_id` (integer): The ID of the line. - Explained Below
+
+- **Success Response**:
+  - **Code**: 200 OK
+  - **Content**:
+    - If `time` is `'all'`:
+      ```json
+      [1, 2, "m"]
+      ```
+      This indicates the next bus is currently at the stop, another one will arrive in 1 minute, the next in 2 minutes, and another in more than 17 minutes (```m```).
+    - If `time` is a specific value (e.g., `1`):
+      ```json
+      "0"
+      ```
+      This indicates the next bus is currently at the stop.
+
+- **Error Response**:
+  - **Code**: 400 Bad Request
+  - **Content**:
+    ```json
+    "Invalid time index"
+    ```
+  - **Code**: 500 Internal Server Error
+  - **Content**:
+    ```json
+    "Error message"
+    ```
+
+#### Example Usage
+ **Retrieve All Times for line 226, Piata Romana Direction, At Piata Romana Stop**:
+   ```sh
+   curl -X GET http://<your_server_ip>:5000/api/time/all/7317/831
+   ```
+
+#### How do I get `station_id` and `line_id`? 👆
 - Head to [info.stbsa.ro](https://info.stbsa.ro) and open the developer console
 - Select your desired line, then your stop
 - Head to the network tab in the developer options and click on the API call that contains the stop ID and line ID as payload
-- Change the code and run the API
-
-
-### Endpoints
-
-- `/api/time/<number>`: Returns the arrival time of the next bus/tram for the specified position in your selected line.
-
-### Example
-
-To get the arrival time of the next tram/bus at the position specified in the flask app:
-
-GET /api/time/1
+- Change the GET payload and run the API
 
 ### ESP32 Example
 
@@ -36,6 +63,7 @@ GET /api/time/1
 
 This example shows one use case of the API I created - matrix display on which you can print times remotely only by having internet access - would be useful for someone busy!
 ESP32 Code avaliable to download in /example/
+
 
 ## Installation
 
@@ -54,7 +82,7 @@ python api.py
 
 3. Access the API:
 ```
-GET localhost:5000/api/time/1
+GET localhost:5000/api/time/.../.../...
 ```
 
 ## License
